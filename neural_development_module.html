@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neural Development Learning Module</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            border-radius: 10px;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .timeline {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+
+        .timeline-item {
+            flex: 1;
+            text-align: center;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            min-width: 120px;
+        }
+
+        .timeline-item:hover {
+            background: #f0f0f0;
+        }
+
+        .timeline-item.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .timeline-item .stage-number {
+            display: block;
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .timeline-item .stage-name {
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .timeline-item .stage-time {
+            font-size: 0.8em;
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+
+        .content-section {
+            display: none;
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .content-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-header {
+            border-left: 4px solid #667eea;
+            padding-left: 20px;
+            margin-bottom: 30px;
+        }
+
+        .section-header h2 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .section-header .time-estimate {
+            background: #e8eaf6;
+            color: #667eea;
+            padding: 5px 15px;
+            border-radius: 20px;
+            display: inline-block;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        .model-container {
+            margin: 30px 0;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .model-container iframe {
+            width: 100%;
+            height: 500px;
+            border: none;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 30px 0;
+        }
+
+        .info-box {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .info-box h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .info-box ul {
+            list-style-position: inside;
+            margin-left: 10px;
+        }
+
+        .info-box li {
+            margin-bottom: 10px;
+        }
+
+        .clinical-box {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 25px;
+            border-radius: 8px;
+            margin: 30px 0;
+        }
+
+        .clinical-box h3 {
+            color: #ff9800;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+        }
+
+        .clinical-box h3::before {
+            content: "⚕️";
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+
+        .quiz-container {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 30px;
+            border-radius: 8px;
+            margin: 30px 0;
+        }
+
+        .quiz-container h3 {
+            color: #4caf50;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+        }
+
+        .quiz-container h3::before {
+            content: "📝";
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+
+        .question {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .question-text {
+            font-weight: 600;
+            margin-bottom: 15px;
+            line-height: 1.8;
+        }
+
+        .options {
+            list-style: none;
+        }
+
+        .options li {
+            padding: 12px;
+            margin: 8px 0;
+            background: #f5f5f5;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .options li:hover {
+            background: #e0e0e0;
+        }
+
+        .options li.selected {
+            background: #667eea;
+            color: white;
+        }
+
+        .options li.correct {
+            background: #4caf50;
+            color: white;
+        }
+
+        .options li.incorrect {
+            background: #f44336;
+            color: white;
+        }
+
+        .explanation {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background: #e3f2fd;
+            border-radius: 5px;
+            border-left: 3px solid #2196f3;
+        }
+
+        .explanation.show {
+            display: block;
+        }
+
+        .check-answer-btn {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            margin-top: 15px;
+            transition: background 0.3s ease;
+        }
+
+        .check-answer-btn:hover {
+            background: #45a049;
+        }
+
+        .check-answer-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+        }
+
+        .nav-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: background 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background: #5568d3;
+        }
+
+        .nav-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .key-concept {
+            background: #fff9e6;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .key-concept h4 {
+            color: #f57c00;
+            margin-bottom: 10px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+            margin-top: 50px;
+        }
+
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .timeline {
+                flex-direction: column;
+            }
+
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .model-container iframe {
+                height: 350px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Neural Development</h1>
+            <p>From Neural Tube to Brain: A Clinical Perspective</p>
+        </header>
+
+        <div class="timeline">
+            <div class="timeline-item active" onclick="showStage(0)">
+                <span class="stage-number">1</span>
+                <span class="stage-name">Neurulation</span>
+                <span class="stage-time">Weeks 3-4</span>
+            </div>
+            <div class="timeline-item" onclick="showStage(1)">
+                <span class="stage-number">2</span>
+                <span class="stage-name">Neural Tube</span>
+                <span class="stage-time">Week 4</span>
+            </div>
+            <div class="timeline-item" onclick="showStage(2)">
+                <span class="stage-number">3</span>
+                <span class="stage-name">Brain Vesicles</span>
+                <span class="stage-time">Weeks 4-5</span>
+            </div>
+            <div class="timeline-item" onclick="showStage(3)">
+                <span class="stage-number">4</span>
+                <span class="stage-name">Ventricles</span>
+                <span class="stage-time">Weeks 5-8</span>
+            </div>
+        </div>
+
+        <!-- Stage 1: Neurulation -->
+        <div class="content-section active" id="stage-0">
+            <div class="section-header">
+                <h2>Stage 1: Neurulation</h2>
+                <span class="time-estimate">⏱️ Core Concept - 5 min</span>
+            </div>
+
+            <p style="font-size: 1.1em; margin-bottom: 30px;">
+                Neurulation is the process by which the neural plate folds to form the neural tube, the precursor to the entire central nervous system. This occurs during weeks 3-4 of embryonic development.
+            </p>
+
+            <div class="model-container">
+                <iframe src="https://sketchfab.com/playlists/embed?collection=81f91333818740b7b5bff0e27d5f45ac&autostart=0"
+                    title="Visualising the Developing Brain"
+                    allowfullscreen
+                    mozallowfullscreen="true"
+                    webkitallowfullscreen="true"
+                    allow="autoplay; fullscreen; xr-spatial-tracking"
+                    xr-spatial-tracking
+                    execution-while-out-of-viewport
+                    execution-while-not-rendered
+                    web-share>
+                </iframe>
+            </div>
+            <p style="text-align: center; font-size: 0.9em; color: #666; margin-top: 10px;">
+                <a href="https://sketchfab.com/anatomy_dundee/collections/visualising-the-developing-brain-81f91333818740b7b5bff0e27d5f45ac" target="_blank" style="color: #1CAAD9; text-decoration: none;">Visualising the Developing Brain</a> by University of Dundee, CAHID
+            </p>
+
+            <div class="content-grid">
+                <div class="info-box">
+                    <h3>Key Steps in Neurulation</h3>
+                    <ul>
+                        <li><strong>Neural plate formation:</strong> Ectoderm thickens above the notochord</li>
+                        <li><strong>Neural groove:</strong> Midline depression forms</li>
+                        <li><strong>Neural folds:</strong> Lateral edges elevate</li>
+                        <li><strong>Neural tube closure:</strong> Folds fuse in the midline</li>
+                        <li><strong>Closure sites:</strong> Begins at multiple points, proceeds bidirectionally</li>
+                    </ul>
+                </div>
+
+                <div class="info-box">
+                    <h3>Critical Molecular Signals</h3>
+                    <ul>
+                        <li><strong>Sonic Hedgehog (SHH):</strong> Secreted by notochord, induces neural plate</li>
+                        <li><strong>BMP antagonists:</strong> Noggin, Chordin, Follistatin promote neural fate</li>
+                        <li><strong>Retinoic acid:</strong> Anteroposterior patterning</li>
+                        <li><strong>Folate:</strong> Essential cofactor for DNA synthesis and cell division</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="key-concept">
+                <h4>💡 Key Concept</h4>
+                <p><strong>Neural tube closure occurs at multiple sites simultaneously</strong>, not as a simple "zipper." The anterior neuropore (future brain) closes around day 25, while the posterior neuropore (future spinal cord) closes around day 27. Failure at specific sites leads to distinct malformations.</p>
+            </div>
+
+            <div class="clinical-box">
+                <h3>Clinical Correlation: Neural Tube Defects (NTDs)</h3>
+                <p><strong>Spina Bifida:</strong> Failure of posterior neuropore closure results in incomplete vertebral arch formation. Severity ranges from:</p>
+                <ul style="margin: 15px 0 15px 20px;">
+                    <li><strong>Spina bifida occulta:</strong> Mildest form, vertebral defect only, often asymptomatic</li>
+                    <li><strong>Meningocele:</strong> Meninges herniate through defect</li>
+                    <li><strong>Myelomeningocele:</strong> Most severe, spinal cord and meninges protrude, often with paralysis</li>
+                </ul>
+                <p><strong>Anencephaly:</strong> Failure of anterior neuropore closure leads to absence of forebrain and calvarium. Incompatible with life.</p>
+                <p style="margin-top: 15px;"><strong>Prevention:</strong> Maternal folic acid supplementation (400-800 μg/day) before conception and during early pregnancy reduces NTD risk by 70%.</p>
+            </div>
+
+            <div class="quiz-container">
+                <h3>Clinical Vignette</h3>
+                <div class="question" id="q1">
+                    <p class="question-text">
+                        A 28-year-old woman at 16 weeks gestation undergoes prenatal ultrasound. The examination reveals a fetus with an open spinal defect in the lumbar region with protruding neural tissue. Elevated maternal serum alpha-fetoprotein (AFP) is noted. Which of the following interventions, if implemented before conception, would have been most likely to prevent this condition?
+                    </p>
+                    <ul class="options">
+                        <li onclick="selectOption(this, 'q1')">A) Vitamin A supplementation</li>
+                        <li onclick="selectOption(this, 'q1')">B) Folic acid supplementation</li>
+                        <li onclick="selectOption(this, 'q1')">C) Calcium supplementation</li>
+                        <li onclick="selectOption(this, 'q1')">D) Iron supplementation</li>
+                        <li onclick="selectOption(this, 'q1')">E) Vitamin D supplementation</li>
+                    </ul>
+                    <button class="check-answer-btn" onclick="checkAnswer('q1', 'B')" disabled>Check Answer</button>
+                    <div class="explanation">
+                        <strong>Correct Answer: B) Folic acid supplementation</strong><br><br>
+                        This case describes <strong>myelomeningocele</strong>, the most severe form of spina bifida, where neural tissue protrudes through an open vertebral defect. Elevated maternal AFP is a classic screening finding for open neural tube defects.<br><br>
+                        <strong>Key Points:</strong><br>
+                        • Folic acid is essential for DNA synthesis and neural tube closure<br>
+                        • Supplementation (400-800 μg daily) starting before conception reduces NTD risk by ~70%<br>
+                        • Critical period is weeks 3-4 (often before pregnancy is recognized)<br>
+                        • All women of childbearing age should take folic acid<br>
+                        • Higher doses (4 mg daily) recommended for women with previous NTD-affected pregnancy
+                    </div>
+                </div>
+            </div>
+
+            <div class="navigation">
+                <button class="nav-btn" disabled>Previous</button>
+                <button class="nav-btn" onclick="showStage(1)">Next: Neural Tube →</button>
+            </div>
+        </div>
+
+        <!-- Stage 2: Neural Tube -->
+        <div class="content-section" id="stage-1">
+            <div class="section-header">
+                <h2>Stage 2: Neural Tube Formation</h2>
+                <span class="time-estimate">⏱️ Core Concept - 4 min</span>
+            </div>
+
+            <p style="font-size: 1.1em; margin-bottom: 30px;">
+                Once the neural tube closes, it becomes subdivided into regions that will give rise to specific parts of the brain and spinal cord. The cranial end expands dramatically while the caudal end remains relatively uniform.
+            </p>
+
+            <div class="model-container">
+                <iframe src="https://sketchfab.com/playlists/embed?collection=81f91333818740b7b5bff0e27d5f45ac&autostart=0"
+                    title="Visualising the Developing Brain"
+                    allowfullscreen
+                    mozallowfullscreen="true"
+                    webkitallowfullscreen="true"
+                    allow="autoplay; fullscreen; xr-spatial-tracking"
+                    xr-spatial-tracking
+                    execution-while-out-of-viewport
+                    execution-while-not-rendered
+                    web-share>
+                </iframe>
+            </div>
+            <p style="text-align: center; font-size: 0.9em; color: #666; margin-top: 10px;">
+                <a href="https://sketchfab.com/anatomy_dundee/collections/visualising-the-developing-brain-81f91333818740b7b5bff0e27d5f45ac" target="_blank" style="color: #1CAAD9; text-decoration: none;">Visualising the Developing Brain</a> by University of Dundee, CAHID
+            </p>
+
+            <div class="content-grid">
+                <div class="info-box">
+                    <h3>Neural Tube Organization</h3>
+                    <ul>
+                        <li><strong>Cranial portion:</strong> Develops into brain (enlarged, complex)</li>
+                        <li><strong>Caudal portion:</strong> Develops into spinal cord (relatively uniform)</li>
+                        <li><strong>Central canal:</strong> Hollow lumen persists throughout</li>
+                        <li><strong>Neural crest:</strong> Cells migrate from edges to form PNS, melanocytes, and more</li>
+                    </ul>
+                </div>
+
+                <div class="info-box">
+                    <h3>Cellular Organization</h3>
+                    <ul>
+                        <li><strong>Ventricular zone:</strong> Innermost layer, proliferative neuroepithelium</li>
+                        <li><strong>Mantle layer:</strong> Middle layer, neuronal cell bodies (future gray matter)</li>
+                        <li><strong>Marginal layer:</strong> Outermost layer, axonal processes (future white matter)</li>
+                        <li><strong>Alar plate:</strong> Dorsal, sensory functions</li>
+                        <li><strong>Basal plate:</strong> Ventral, motor functions</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="key-concept">
+                <h4>💡 Key Concept</h4>
+                <p><strong>Dorsal-ventral patterning</strong> is established by opposing morphogen gradients: SHH (ventralizing, from notochord/floor plate) and BMPs (dorsalizing, from roof plate). This creates distinct alar (sensory) and basal (motor) domains separated by the sulcus limitans.</p>
+            </div>
+
+            <div class="clinical-box">
+                <h3>Clinical Correlation: Spinal Cord Development</h3>
+                <p>Understanding the basic organization of the neural tube is essential for interpreting spinal cord pathology:</p>
+                <ul style="margin: 15px 0 15px 20px;">
+                    <li><strong>Syringomyelia:</strong> Abnormal fluid-filled cavity within spinal cord, often near central canal. Can result from congenital malformations or trauma. Classically causes "cape-like" loss of pain/temperature sensation.</li>
+                    <li><strong>Tethered cord syndrome:</strong> Abnormal attachment of spinal cord prevents normal ascent during development, causing progressive neurological deficits.</li>
+                </ul>
+            </div>
+
+            <div class="quiz-container">
+                <h3>Clinical Vignette</h3>
+                <div class="question" id="q2">
+                    <p class="question-text">
+                        A newborn infant presents with a tuft of hair and a small dimple in the lumbar region. MRI reveals that the conus medullaris terminates at the L4 level (normal is L1-L2) and the filum terminale appears thickened and taut. As the child grows, which of the following complications is most likely to develop?
+                    </p>
+                    <ul class="options">
+                        <li onclick="selectOption(this, 'q2')">A) Hydrocephalus</li>
+                        <li onclick="selectOption(this, 'q2')">B) Progressive lower extremity weakness and bladder dysfunction</li>
+                        <li onclick="selectOption(this, 'q2')">C) Intellectual disability</li>
+                        <li onclick="selectOption(this, 'q2')">D) Seizures</li>
+                        <li onclick="selectOption(this, 'q2')">E) Visual impairment</li>
+                    </ul>
+                    <button class="check-answer-btn" onclick="checkAnswer('q2', 'B')" disabled>Check Answer</button>
+                    <div class="explanation">
+                        <strong>Correct Answer: B) Progressive lower extremity weakness and bladder dysfunction</strong><br><br>
+                        This case describes <strong>tethered cord syndrome</strong>. The cutaneous stigmata (hair tuft, dimple) suggest an underlying spinal dysraphism. The low-lying conus medullaris indicates abnormal spinal cord attachment.<br><br>
+                        <strong>Key Points:</strong><br>
+                        • During normal development, the vertebral column grows faster than the spinal cord, causing the conus to "ascend" from S1 (fetal) to L1-L2 (adult)<br>
+                        • Tethering prevents this normal ascent, causing stretch injury with growth<br>
+                        • Progressive symptoms: leg weakness, sensory loss, bowel/bladder dysfunction, orthopedic deformities<br>
+                        • Treatment: Surgical release of tethering to prevent progression<br>
+                        • Emphasizes importance of early recognition of cutaneous markers
+                    </div>
+                </div>
+            </div>
+
+            <div class="navigation">
+                <button class="nav-btn" onclick="showStage(0)">← Previous: Neurulation</button>
+                <button class="nav-btn" onclick="showStage(2)">Next: Brain Vesicles →</button>
+            </div>
+        </div>
+
+        <!-- Stage 3: Brain Vesicles -->
+        <div class="content-section" id="stage-2">
+            <div class="section-header">
+                <h2>Stage 3: Brain Vesicle Formation</h2>
+                <span class="time-estimate">⏱️ Core Concept - 6 min</span>
+            </div>
+
+            <p style="font-size: 1.1em; margin-bottom: 30px;">
+                The cranial neural tube undergoes dramatic expansion and regionalization, first forming three primary vesicles, then subdividing into five secondary vesicles that give rise to all major brain structures.
+            </p>
+
+            <div class="model-container">
+                <iframe src="https://sketchfab.com/playlists/embed?collection=81f91333818740b7b5bff0e27d5f45ac&autostart=0"
+                    title="Visualising the Developing Brain"
+                    allowfullscreen
+                    mozallowfullscreen="true"
+                    webkitallowfullscreen="true"
+                    allow="autoplay; fullscreen; xr-spatial-tracking"
+                    xr-spatial-tracking
+                    execution-while-out-of-viewport
+                    execution-while-not-rendered
+                    web-share>
+                </iframe>
+            </div>
+            <p style="text-align: center; font-size: 0.9em; color: #666; margin-top: 10px;">
+                <a href="https://sketchfab.com/anatomy_dundee/collections/visualising-the-developing-brain-81f91333818740b7b5bff0e27d5f45ac" target="_blank" style="color: #1CAAD9; text-decoration: none;">Visualising the Developing Brain</a> by University of Dundee, CAHID
+            </p>
+
+            <div style="background: white; padding: 30px; border-radius: 10px; margin: 30px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                <h3 style="color: #667eea; margin-bottom: 25px; text-align: center;">Vesicle Development Timeline</h3>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+                    <div style="text-align: center; padding: 20px; background: #f0f4ff; border-radius: 8px;">
+                        <h4 style="color: #667eea; margin-bottom: 10px;">Week 4</h4>
+                        <p style="font-weight: 600; font-size: 1.1em;">3 Primary Vesicles</p>
+                    </div>
+                    <div style="text-align: center; padding: 20px; background: #fff4e6; border-radius: 8px;">
+                        <h4 style="color: #ff9800; margin-bottom: 10px;">Week 5</h4>
+                        <p style="font-weight: 600; font-size: 1.1em;">5 Secondary Vesicles</p>
+                    </div>
+                    <div style="text-align: center; padding: 20px; background: #e8f5e9; border-radius: 8px;">
+                        <h4 style="color: #4caf50; margin-bottom: 10px;">Adult</h4>
+                        <p style="font-weight: 600; font-size: 1.1em;">Mature Structures</p>
+                    </div>
+                </div>
+
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background: #667eea; color: white;">
+                            <th style="padding: 15px; text-align: left;">Primary Vesicle</th>
+                            <th style="padding: 15px; text-align: left;">Secondary Vesicle</th>
+                            <th style="padding: 15px; text-align: left;">Adult Structures</th>
+                            <th style="padding: 15px; text-align: left;">Cavity</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #f8f9fa;">
+                            <td rowspan="2" style="padding: 15px; border-bottom: 1px solid #dee2e6; font-weight: 600;">Prosencephalon<br>(Forebrain)</td>
+                            <td style="padding: 15px; border-bottom: 1px solid #dee2e6;">Telencephalon</td>
+                            <td style="padding: 15px; border-bottom: 1px solid #dee2e6;">Cerebral hemispheres, Basal ganglia, Hippocampus</td>
+                            <td style="padding: 15px; border-bottom: 1px solid #dee2e6;">Lateral ventricles</td>
+                        </tr>
+                        <tr style="background: #f8f9fa;">
+                            <td style="padding: 15px; border-bottom: 1px solid #dee2e6;">Diencephalon</td>
+                            <td style="padding: 15px; border-bottom: 1px solid #dee2e6;">Thalamus, Hypothalamus, Epithalamus, Retina</td>
+                            <td style="padding: 15px; border-bottom: 1px solid #dee2e6;">Third ventricle</td>
+                        </tr>
+                        <tr style="background: white;">
+                            <td style="padding: 15px; border-bottom: 1px solid #dee2e6; font-weight: 600;">Mesencephalon<br>(Midbrain)</td>
+                            <td style="padding: 15px; border-bottom: 1px solid #dee2e6;">Mesencephalon</td>
+                            <td style="padding: 15px; border-bottom: 1px solid #dee2e6;">Midbrain (tectum, tegmentum, cerebral peduncles)</td>
+                            <td style="padding: 15px; border-bottom: 1px solid #dee2e6;">Cerebral aqueduct</td>
+                        </tr>
+                        <tr style="background: #f8f9fa;">
+                            <td rowspan="2" style="padding: 15px; font-weight: 600;">Rhombencephalon<br>(Hindbrain)</td>
+                            <td style="padding: 15px; border-bottom: 1px solid #dee2e6;">Metencephalon</td>
+                            <td style="padding: 15px; border-bottom: 1px solid #dee2e6;">Pons, Cerebellum</td>
+                            <td style="padding: 15px; border-bottom: 1px solid #dee2e6;">Fourth ventricle (upper)</td>
+                        </tr>
+                        <tr style="background: #f8f9fa;">
+                            <td style="padding: 15px;">Myelencephalon</td>
+                            <td style="padding: 15px;">Medulla oblongata</td>
+                            <td style="padding: 15px;">Fourth ventricle (lower)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="key-concept">
+                <h4>💡 Key Concept</h4>
+                <p><strong>Brain flexures</strong> develop as the brain grows within the confined space of the skull: (1) <strong>Cephalic flexure</strong> between forebrain and midbrain, (2) <strong>Pontine flexure</strong> in the hindbrain (creates rhombic lips → cerebellum), and (3) <strong>Cervical flexure</strong> at brainstem-spinal cord junction. These flexures explain the complex 3D organization of the adult brain.</p>
+            </div>
+
+            <div class="clinical-box">
+                <h3>Clinical Correlation: Holoprosencephaly</h3>
+                <p><strong>Holoprosencephaly (HPE)</strong> is a spectrum of malformations resulting from incomplete division of the prosencephalon into two cerebral hemispheres.</p>
+                
+                <p style="margin-top: 15px;"><strong>Spectrum of severity:</strong></p>
+                <ul style="margin: 10px 0 15px 20px;">
+                    <li><strong>Alobar HPE:</strong> Most severe, single ventricle, fused thalami, absent corpus callosum and interhemispheric fissure</li>
+                    <li><strong>Semilobar HPE:</strong> Partial separation posteriorly, fused frontal lobes</li>
+                    <li><strong>Lobar HPE:</strong> Mildest, most separation present, may have subtle midline defects</li>
+                </ul>
+
+                <p><strong>Facial anomalies</strong> often accompany HPE (reflecting common midline developmental field):</p>
+                <ul style="margin: 10px 0 15px 20px;">
+                    <li>Cyclopia (single median eye) - most severe</li>
+                    <li>Proboscis (tubular nose above eye)</li>
+                    <li>Hypotelorism (closely spaced eyes)</li>
+                    <li>Cleft lip/palate</li>
+                    <li>Single central maxillary incisor</li>
+                </ul>
+
+                <p style="margin-top: 15px;"><strong>Etiology:</strong> Disruption of Sonic Hedgehog (SHH) signaling is the most common mechanism. Can be genetic (mutations in SHH, ZIC2, SIX3) or environmental (maternal diabetes, alcohol).</p>
+                
+                <p style="margin-top: 15px;"><strong>Clinical pearl:</strong> "The face predicts the brain" - severity of facial features correlates with brain malformation severity.</p>
+            </div>
+
+            <div class="quiz-container">
+                <h3>Clinical Vignette</h3>
+                <div class="question" id="q3">
+                    <p class="question-text">
+                        Prenatal ultrasound at 20 weeks gestation reveals a fetus with a single cerebral ventricle, fused thalami, and absence of the interhemispheric fissure. Facial abnormalities include closely spaced eyes (hypotelorism) and a flat nose. The mother has poorly controlled type 1 diabetes mellitus. Which of the following signaling pathways is most likely disrupted in this condition?
+                    </p>
+                    <ul class="options">
+                        <li onclick="selectOption(this, 'q3')">A) Wnt signaling</li>
+                        <li onclick="selectOption(this, 'q3')">B) Notch signaling</li>
+                        <li onclick="selectOption(this, 'q3')">C) Sonic Hedgehog (SHH) signaling</li>
+                        <li onclick="selectOption(this, 'q3')">D) Fibroblast Growth Factor (FGF) signaling</li>
+                        <li onclick="selectOption(this, 'q3')">E) Transforming Growth Factor-β (TGF-β) signaling</li>
+                    </ul>
+                    <button class="check-answer-btn" onclick="checkAnswer('q3', 'C')" disabled>Check Answer</button>
+                    <div class="explanation">
+                        <strong>Correct Answer: C) Sonic Hedgehog (SHH) signaling</strong><br><br>
+                        This case describes <strong>alobar holoprosencephaly</strong>, the most severe form of HPE. Key imaging findings include single ventricle, fused thalami, and absent midline structures.<br><br>
+                        <strong>Key Points:</strong><br>
+                        • SHH is critical for ventral forebrain and midline facial development<br>
+                        • Disrupted SHH signaling prevents prosencephalon division into two hemispheres<br>
+                        • Maternal diabetes is a known environmental risk factor (interferes with SHH pathway)<br>
+                        • Genetic causes: mutations in SHH, ZIC2, SIX3, and others<br>
+                        • The facial phenotype reflects the severity of brain malformation<br>
+                        • Alobar HPE is typically incompatible with long-term survival<br>
+                        • Remember: <strong>midline defects</strong> (brain + face) = think SHH signaling
+                    </div>
+                </div>
+            </div>
+
+            <div class="navigation">
+                <button class="nav-btn" onclick="showStage(1)">← Previous: Neural Tube</button>
+                <button class="nav-btn" onclick="showStage(3)">Next: Ventricles →</button>
+            </div>
+        </div>
+
+        <!-- Stage 4: Ventricles -->
+        <div class="content-section" id="stage-3">
+            <div class="section-header">
+                <h2>Stage 4: Ventricular System Development</h2>
+                <span class="time-estimate">⏱️ Core Concept - 5 min</span>
+            </div>
+
+            <p style="font-size: 1.1em; margin-bottom: 30px;">
+                The central canal of the neural tube expands within the developing brain to form a continuous ventricular system filled with cerebrospinal fluid (CSF). Understanding ventricular development is essential for recognizing congenital malformations affecting CSF circulation.
+            </p>
+
+            <div class="model-container">
+                <iframe src="https://sketchfab.com/playlists/embed?collection=81f91333818740b7b5bff0e27d5f45ac&autostart=0"
+                    title="Visualising the Developing Brain"
+                    allowfullscreen
+                    mozallowfullscreen="true"
+                    webkitallowfullscreen="true"
+                    allow="autoplay; fullscreen; xr-spatial-tracking"
+                    xr-spatial-tracking
+                    execution-while-out-of-viewport
+                    execution-while-not-rendered
+                    web-share>
+                </iframe>
+            </div>
+            <p style="text-align: center; font-size: 0.9em; color: #666; margin-top: 10px;">
+                <a href="https://sketchfab.com/anatomy_dundee/collections/visualising-the-developing-brain-81f91333818740b7b5bff0e27d5f45ac" target="_blank" style="color: #1CAAD9; text-decoration: none;">Visualising the Developing Brain</a> by University of Dundee, CAHID
+            </p>
+
+            <div style="background: white; padding: 30px; border-radius: 10px; margin: 30px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                <h3 style="color: #667eea; margin-bottom: 20px;">Ventricular System Organization</h3>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px;">
+                    <div>
+                        <h4 style="color: #667eea; margin-bottom: 15px;">Ventricles & Origins</h4>
+                        <ul style="line-height: 2;">
+                            <li><strong>Lateral ventricles (1st & 2nd):</strong> From telencephalon, largest ventricles, C-shaped</li>
+                            <li><strong>Third ventricle:</strong> From diencephalon, narrow midline cavity</li>
+                            <li><strong>Cerebral aqueduct:</strong> From mesencephalon, narrow channel</li>
+                            <li><strong>Fourth ventricle:</strong> From rhombencephalon, diamond-shaped</li>
+                            <li><strong>Central canal:</strong> Continues into spinal cord</li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4 style="color: #667eea; margin-bottom: 15px;">CSF Flow Path</h4>
+                        <ol style="line-height: 2;">
+                            <li>Lateral ventricles (production by choroid plexus)</li>
+                            <li>↓ Interventricular foramina (of Monro)</li>
+                            <li>Third ventricle</li>
+                            <li>↓ Cerebral aqueduct (of Sylvius)</li>
+                            <li>Fourth ventricle</li>
+                            <li>↓ Foramina of Luschka (lateral) & Magendie (median)</li>
+                            <li>Subarachnoid space → Arachnoid granulations → Venous system</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-grid">
+                <div class="info-box">
+                    <h3>Choroid Plexus Development</h3>
+                    <ul>
+                        <li><strong>Location:</strong> Roof of 3rd & 4th ventricles, medial wall of lateral ventricles</li>
+                        <li><strong>Structure:</strong> Highly vascularized, specialized ependymal cells</li>
+                        <li><strong>Function:</strong> CSF production (~500 mL/day in adults)</li>
+                        <li><strong>Formation:</strong> Vascular mesenchyme invaginates into ventricles</li>
+                    </ul>
+                </div>
+
+                <div class="info-box">
+                    <h3>Critical Developmental Events</h3>
+                    <ul>
+                        <li><strong>Week 6:</strong> Choroid plexus begins CSF production</li>
+                        <li><strong>Week 8:</strong> Fourth ventricle openings develop (foramina of Luschka & Magendie)</li>
+                        <li><strong>Week 10-20:</strong> Rapid brain growth, ventricles expand</li>
+                        <li><strong>Late gestation:</strong> Arachnoid granulations develop for CSF absorption</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="key-concept">
+                <h4>💡 Key Concept</h4>
+                <p><strong>Hydrocephalus develops when CSF production exceeds absorption</strong> or when there is obstruction to flow. Understanding the narrow points in the system (foramina of Monro, cerebral aqueduct, foramina of Luschka/Magendie) is critical for identifying the level of obstruction. <strong>Communicating hydrocephalus</strong> = problem with absorption; <strong>Non-communicating hydrocephalus</strong> = obstruction within ventricular system.</p>
+            </div>
+
+            <div class="clinical-box">
+                <h3>Clinical Correlation: Congenital Hydrocephalus</h3>
+                
+                <p><strong>Aqueductal Stenosis:</strong> Most common cause of congenital hydrocephalus</p>
+                <ul style="margin: 10px 0 15px 20px;">
+                    <li>Narrowing or obstruction of cerebral aqueduct</li>
+                    <li>Results in dilation of lateral and third ventricles (proximal to obstruction)</li>
+                    <li>Can be X-linked (L1CAM gene mutations) or acquired (infection, hemorrhage)</li>
+                    <li>Presentation: Macrocephaly, bulging fontanelle, "setting sun sign" (eyes deviate downward)</li>
+                </ul>
+
+                <p style="margin-top: 15px;"><strong>Dandy-Walker Malformation:</strong></p>
+                <ul style="margin: 10px 0 15px 20px;">
+                    <li>Hypoplasia/agenesis of cerebellar vermis</li>
+                    <li>Cystic dilation of fourth ventricle</li>
+                    <li>Enlarged posterior fossa</li>
+                    <li>Often associated with hydrocephalus due to impaired CSF flow from fourth ventricle</li>
+                </ul>
+
+                <p style="margin-top: 15px;"><strong>Chiari II Malformation:</strong></p>
+                <ul style="margin: 10px 0 15px 20px;">
+                    <li>Herniation of cerebellar tonsils, vermis, and medulla through foramen magnum</li>
+                    <li>Nearly always associated with myelomeningocele</li>
+                    <li>Can cause obstructive hydrocephalus by compressing fourth ventricle</li>
+                    <li>Small posterior fossa</li>
+                </ul>
+
+                <p style="margin-top: 15px;"><strong>Treatment:</strong> Ventriculoperitoneal (VP) shunt to divert CSF or endoscopic third ventriculostomy (ETV) in selected cases.</p>
+            </div>
+
+            <div class="quiz-container">
+                <h3>Clinical Vignette</h3>
+                <div class="question" id="q4">
+                    <p class="question-text">
+                        A 3-month-old infant presents with rapidly increasing head circumference (crossing percentiles), bulging anterior fontanelle, and downward deviation of the eyes. CT imaging reveals marked enlargement of the lateral and third ventricles, but the fourth ventricle appears normal in size. The cerebral aqueduct is not visualized. Which of the following is the most likely diagnosis?
+                    </p>
+                    <ul class="options">
+                        <li onclick="selectOption(this, 'q4')">A) Communicating hydrocephalus</li>
+                        <li onclick="selectOption(this, 'q4')">B) Aqueductal stenosis</li>
+                        <li onclick="selectOption(this, 'q4')">C) Dandy-Walker malformation</li>
+                        <li onclick="selectOption(this, 'q4')">D) Choroid plexus papilloma</li>
+                        <li onclick="selectOption(this, 'q4')">E) Normal pressure hydrocephalus</li>
+                    </ul>
+                    <button class="check-answer-btn" onclick="checkAnswer('q4', 'B')" disabled>Check Answer</button>
+                    <div class="explanation">
+                        <strong>Correct Answer: B) Aqueductal stenosis</strong><br><br>
+                        The imaging pattern is diagnostic: enlarged lateral and third ventricles with normal-sized fourth ventricle indicates obstruction at the cerebral aqueduct.<br><br>
+                        <strong>Key Points:</strong><br>
+                        • Aqueductal stenosis is the most common cause of congenital hydrocephalus (~20% of cases)<br>
+                        • The cerebral aqueduct is the narrowest point in the ventricular system, making it vulnerable to obstruction<br>
+                        • <strong>Pattern recognition:</strong> Dilation proximal to obstruction, normal size distal<br>
+                        • Clinical signs: Macrocephaly (↑ head circumference), bulging fontanelle, "setting sun sign" (downward eye deviation from pressure on superior colliculi)<br>
+                        • X-linked aqueductal stenosis: L1CAM gene mutations, often with intellectual disability and adducted thumbs<br>
+                        • Treatment: VP shunt or endoscopic third ventriculostomy (ETV)<br><br>
+                        <strong>Why other answers are wrong:</strong><br>
+                        • Communicating hydrocephalus: All ventricles enlarged (absorption problem)<br>
+                        • Dandy-Walker: Fourth ventricle markedly enlarged, not normal<br>
+                        • Normal pressure hydrocephalus: Adult condition (triad: gait ataxia, dementia, urinary incontinence)
+                    </div>
+                </div>
+            </div>
+
+            <div class="navigation">
+                <button class="nav-btn" onclick="showStage(2)">← Previous: Brain Vesicles</button>
+                <button class="nav-btn" disabled>Course Complete!</button>
+            </div>
+        </div>
+
+        <footer>
+            <p>Interactive Neural Development Module | Created for Medical Education</p>
+            <p style="margin-top: 10px; font-size: 0.9em;">3D Models courtesy of University of Dundee, CAHID via Sketchfab</p>
+        </footer>
+    </div>
+
+    <script>
+        let currentStage = 0;
+        const selectedAnswers = {};
+
+        function showStage(stageIndex) {
+            // Hide all stages
+            const stages = document.querySelectorAll('.content-section');
+            stages.forEach(stage => stage.classList.remove('active'));
+
+            // Show selected stage
+            document.getElementById(`stage-${stageIndex}`).classList.add('active');
+
+            // Update timeline
+            const timelineItems = document.querySelectorAll('.timeline-item');
+            timelineItems.forEach((item, index) => {
+                if (index === stageIndex) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            currentStage = stageIndex;
+        }
+
+        function selectOption(element, questionId) {
+            // Remove previous selection
+            const options = element.parentElement.querySelectorAll('li');
+            options.forEach(opt => {
+                opt.classList.remove('selected');
+            });
+
+            // Add selection to clicked option
+            element.classList.add('selected');
+            
+            // Store selected answer
+            selectedAnswers[questionId] = element.textContent.trim()[0]; // Get the letter (A, B, C, etc.)
+
+            // Enable check answer button
+            const checkBtn = element.parentElement.parentElement.querySelector('.check-answer-btn');
+            checkBtn.disabled = false;
+        }
+
+        function checkAnswer(questionId, correctAnswer) {
+            const question = document.getElementById(questionId);
+            const options = question.querySelectorAll('.options li');
+            const explanation = question.querySelector('.explanation');
+            const checkBtn = question.querySelector('.check-answer-btn');
+
+            // Disable further selection
+            options.forEach(opt => {
+                opt.style.pointerEvents = 'none';
+                const letter = opt.textContent.trim()[0];
+                
+                if (letter === correctAnswer) {
+                    opt.classList.add('correct');
+                    opt.classList.remove('selected');
+                } else if (opt.classList.contains('selected')) {
+                    opt.classList.add('incorrect');
+                    opt.classList.remove('selected');
+                }
+            });
+
+            // Show explanation
+            explanation.classList.add('show');
+            
+            // Hide check button
+            checkBtn.style.display = 'none';
+        }
+
+        // Initialize first stage
+        showStage(0);
+    </script>
+</body>
+</html>
